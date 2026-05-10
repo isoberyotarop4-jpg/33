@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tohoku Univ. Style App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --th-purple: #4B0082; /* 東北大の濃い紫 */
+            --light-purple: #712271;
+            --bg-gray: #f8f9fa;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            margin: 0;
+            background-color: white;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* --- ホーム画面のスタイル --- */
+        .home-header {
+            padding: 50px 20px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-circle {
+            width: 50px;
+            height: 50px;
+            background-color: var(--th-purple);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 0.6rem;
+            text-align: center;
+        }
+
+        .user-info .name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--light-purple);
+            margin-bottom: 2px;
+        }
+
+        .user-info .dept {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .id-button {
+            text-align: center;
+            font-size: 0.6rem;
+            color: var(--light-purple);
+            cursor: pointer;
+        }
+
+        .id-button img { width: 30px; display: block; margin: 0 auto 4px; }
+
+        /* タブ切り替え */
+        .tab-nav {
+            display: flex;
+            padding: 0 20px;
+            border-bottom: 2px solid var(--border-color);
+            gap: 20px;
+        }
+
+        .tab-nav div {
+            padding: 10px 0;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #888;
+        }
+
+        .tab-nav div.active {
+            color: var(--light-purple);
+            border-bottom: 3px solid var(--light-purple);
+        }
+
+        /* コンテンツエリア */
+        .search-bar {
+            margin: 15px 20px;
+            background: #eee;
+            padding: 10px;
+            border-radius: 4px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .section-title {
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--light-purple);
+            margin: 10px 20px;
+        }
+
+        .section-title h2 { font-size: 1.2rem; margin: 0; }
+        .more-btn { background: var(--light-purple); color: white; border-radius: 15px; padding: 2px 12px; font-size: 0.7rem; }
+
+        .empty-msg {
+            text-align: center;
+            color: #999;
+            padding: 40px 0;
+            font-size: 0.9rem;
+        }
+
+        /* フッタータブ */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            background: var(--th-purple);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            color: white;
+            padding-bottom: 10px;
+        }
+
+        .nav-item { font-size: 0.65rem; text-align: center; opacity: 0.8; }
+        .nav-item.active { opacity: 1; font-weight: bold; }
+
+        /* --- 学生証のスライド（モーダル） --- */
+        #id-card-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1000;
+            align-items: flex-end;
+        }
+
+        .id-card-content {
+            width: 100%;
+            height: 90vh;
+            background: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .id-card-header {
+            background-color: var(--th-purple);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .id-main {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .profile-img-large {
+            width: 120px;
+            height: 150px;
+            background: #ddd;
+            margin: 0 auto 20px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .qr-section {
+            padding: 20px;
+            background: white;
+            border: 1px solid #eee;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .id-details {
+            text-align: left;
+            width: 80%;
+            margin: 0 auto;
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+
+        .id-row { display: flex; border-bottom: 1px solid #eee; padding: 5px 0; }
+        .id-label { width: 40%; color: var(--light-purple); font-weight: bold; }
+
+        /* 編集パネル */
+        #edit-panel {
+            position: fixed;
+            top: 10%; left: 5%; width: 90%;
+            background: white; border: 2px solid var(--th-purple);
+            padding: 20px; z-index: 2000; display: none;
+            border-radius: 10px; box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="home">
+        <header class="home-header">
+            <div class="user-profile" onclick="toggleEdit()">
+                <div class="logo-circle">TOHOKU<br>UNIV.</div>
+                <div class="user-info">
+                    <div class="name" id="disp-name">礒部 遼太朗 さん</div>
+                    <div class="dept" id="disp-dept">学部１年生 , 工学部</div>
+                </div>
+            </div>
+            <div class="id-button" onclick="showID()">
+                <div style="font-size: 1.5rem;">🔳</div>
+                学生証/職員証
+            </div>
+        </header>
+
+        <nav class="tab-nav">
+            <div class="active">ホーム - 学生用</div>
+            <div>Life Guide</div>
+        </nav>
+
+        <div class="search-bar">🔍 キーワードから検索</div>
+
+        <section>
+            <div class="section-title">
+                <h2>大学からのお知らせ</h2>
+                <div class="more-btn">MORE 〉</div>
+            </div>
+            <div class="empty-msg">配信されているお知らせはありません</div>
+        </section>
+
+        <section>
+            <div class="section-title">
+                <h2>未読のお知らせ</h2>
+                <div class="more-btn">MORE 〉</div>
+            </div>
+            <div class="empty-msg">未読のお知らせはありません</div>
+        </section>
+
+        <nav class="bottom-nav">
+            <div class="nav-item active">📰<br>お知らせ</div>
+            <div class="nav-item">📈<br>アンケート</div>
+            <div class="nav-item">📅<br>学年暦</div>
+            <div class="nav-item">📖<br>授業情報</div>
+            <div class="nav-item">📍<br>マップ</div>
+        </nav>
+    </div>
+
+    <div id="id-card-modal" onclick="hideID()">
+        <div class="id-card-content" onclick="event.stopPropagation()">
+            <div class="id-card-header">
+                <span style="font-size: 0.8rem;">東北大学</span>
+                <span style="font-size: 0.8rem;">スマホ学生証</span>
+            </div>
+            <div class="id-main">
+                <img id="disp-photo" src="https://via.placeholder.com/120x150?text=Photo" class="profile-img-large">
+                <div style="font-size: 1.2rem; font-weight: bold;" id="disp-name2">礒部 遼太朗</div>
+                <div style="font-size: 0.8rem; margin-bottom: 20px;" id="disp-id">A9LB9999</div>
+                
+                <div class="qr-section">
+                    <div style="font-size: 0.6rem; color: var(--light-purple); margin-bottom: 5px;">スマホ学生証QR</div>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=A9LB9999" width="150">
+                </div>
+
+                <div class="id-details">
+                    <div class="id-row"><div class="id-label">所属</div><div id="disp-course">工学部</div></div>
+                    <div class="id-row"><div class="id-label">生年月日</div><div id="disp-birth">2005/04/01</div></div>
+                </div>
+            </div>
+            <button onclick="hideID()" style="width: 100%; padding: 20px; border: none; background: #eee;">閉じる</button>
+        </div>
+    </div>
+
+    <div id="edit-panel">
+        <h3>個人情報設定</h3>
+        氏名: <input type="text" id="in-name" value="礒部 遼太朗"><br><br>
+        学籍番号: <input type="text" id="in-id" value="A9LB9999"><br><br>
+        所属: <input type="text" id="in-dept" value="学部１年生 , 工学部"><br><br>
+        生年月日: <input type="text" id="in-birth" value="2005/04/01"><br><br>
+        写真URL: <input type="text" id="in-photo" placeholder="https://..."><br><br>
+        <button onclick="saveAll()" style="background: var(--th-purple); color:white; padding: 10px 20px; border:none; border-radius:5px;">保存して反映</button>
+        <button onclick="toggleEdit()" style="background: #ccc; border:none; padding: 10px 20px; border-radius:5px;">キャンセル</button>
+    </div>
+
+    <script>
+        function showID() {
+            const modal = document.getElementById('id-card-modal');
+            const content = modal.querySelector('.id-card-content');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                content.style.transform = 'translateY(0)';
+            }, 10);
+        }
+
+        function hideID() {
+            const content = document.querySelector('.id-card-content');
+            content.style.transform = 'translateY(100%)';
+            setTimeout(() => {
+                document.getElementById('id-card-modal').style.display = 'none';
+            }, 400);
+        }
+
+        function toggleEdit() {
+            const panel = document.getElementById('edit-panel');
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function saveAll() {
+            const name = document.getElementById('in-name').value;
+            const id = document.getElementById('in-id').value;
+            const dept = document.getElementById('in-dept').value;
+            const birth = document.getElementById('in-birth').value;
+            const photo = document.getElementById('in-photo').value;
+
+            document.getElementById('disp-name').innerText = name + " さん";
+            document.getElementById('disp-name2').innerText = name;
+            document.getElementById('disp-dept').innerText = dept;
+            document.getElementById('disp-id').innerText = id;
+            document.getElementById('disp-birth').innerText = birth;
+            if(photo) document.getElementById('disp-photo').src = photo;
+
+            toggleEdit();
+        }
+    </script>
+</body>
+</html>
